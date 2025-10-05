@@ -9,13 +9,13 @@ Original file is located at
 Capitolo 2
 """
 
-!pip install meshio
+#!pip install meshio
 import meshio
 import networkx as nx
 import matplotlib.pyplot as plt
+import numpy as np
 
-
-mesh = meshio.read("Bump.msh")  # Carico la mesh dal file .msh
+mesh = meshio.read(r"C:\Users\aliac\Desktop\Tesi_Magistrale\Esercitazione_CFD\Euler_2D\bump_structured.msh")  # Carico la mesh dal file .msh
 
 
 edges = set() # Utilizzo un set() perchè elimina automaticamente i duplicati
@@ -52,9 +52,49 @@ for i in range(coords_2d.shape[0]):
     coords_dict[i] = tuple(coords_2d[i])
 
 
-plt.figure(figsize=(40,40))
-nx.draw(G, pos=coords_dict,
-        with_labels=False,
-        node_color="skyblue", node_size=100, edge_color="gray")
+# Inserisco attributi all'inetrno di ogni nodo 
+data = np.loadtxt(r"C:\Users\aliac\Desktop\Tesi_Magistrale\Esercitazione_CFD\cellcentered_to_node_1.txt")   # Apro il file txt generato dal codice python from_cell_centered_to_node.py
+x, y, rho, P, u, v, M, S = data.T
+
+for i in range(coords_2d.shape[0]):
+    G.nodes[i]["x"] = x[i]
+    G.nodes[i]["y"] = y[i]
+    G.nodes[i]["densità"] = rho[i]
+    G.nodes[i]["pressione"] = P[i]
+    G.nodes[i]["u"] = u[i]
+    G.nodes[i]["v"] = v[i]
+    G.nodes[i]["mach"] = M[i]
+    G.nodes[i]["entropia"] = S[i]
+
+#print(G.nodes[0])
+
+
+mach=[]
+for i in G.nodes:
+    mach.append(G.nodes[i]["mach"])
+
+
+
+
+# Visualizzazione grafo
+
+# Disegno nodi e archi in maniera separata per visualizzare la colorbar ( se scrivessi solo nx.draw() mi darebbe errore)
+
+# Disegno i nodi 
+nodes = nx.draw_networkx_nodes(
+    G, pos=coords_dict,
+    node_color=mach,      # lista di valori (uno per nodo) della variabile da visualizzare ( in questo caso il mach)
+    cmap=plt.cm.jet,      
+    node_size=100
+)
+
+# Disegno gli archi 
+edges=nx.draw_networkx_edges(G, pos=coords_dict, edge_color="gray")
+
+
+# Colorbar
+cbar = plt.colorbar(nodes)
+cbar.set_label("Mach")
+
 plt.axis("equal")
 plt.show()
