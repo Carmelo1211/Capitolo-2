@@ -1,15 +1,13 @@
 import numpy as np
-import os
-os.chdir(r"C:\Users\aliac\Desktop\Tesi_Magistrale\Esercitazione_CFD")
 # Inizializzo valore variabili 
 
 cells_xy= []         # [(x_c,y_c),....]  
 cells_vars=[]        # [[rho_c, P_c, u_c, v_c, M, S],....]
 nodes = []         # [(ids, x, y), ...]
 sec = None
-
+file=""            # file ottenuto dal nuovo codice output in fortran: "output_txt_file.90"
 # Apro il file 
-with open(r"C:\Users\aliac\Desktop\Tesi_Magistrale\Esercitazione_CFD\Euler_2D\1000.txt","r") as f:
+with open(file,"r") as f:
 
     # Gestisco il file per inserire i valori che mi servono nelle rispettive variabili 
     for riga in f:
@@ -85,7 +83,7 @@ for eids, x, y in nodes:
     out.append(val)
     
 
-with open("cellcentered_to_node_1.txt","w") as fo:
+with open("cellcentered_to_node.txt","w") as fo:
     fo.write("\n".join(out))
 
-print("OK -> nodal_from_cc.txt")
+
